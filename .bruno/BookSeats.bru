@@ -1,0 +1,28 @@
+meta {
+  name: BookSeats
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/sessions/{{session_id}}/bookings
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "userId": "{{user_id}}",
+    "seats": 2
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("booking_id", res.body.data.id);
+  }
+}
+
+assert {
+  res.status: eq 201
+}

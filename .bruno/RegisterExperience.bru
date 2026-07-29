@@ -1,0 +1,29 @@
+meta {
+  name: RegisterExperience
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/experiences
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "providerId": "{{provider_id}}",
+    "title": "Guided city tour",
+    "description": "A two-hour walk through the old town."
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("experience_id", res.body.data.id);
+  }
+}
+
+assert {
+  res.status: eq 201
+}

@@ -1,0 +1,15 @@
+meta {
+  name: CancelBooking
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/bookings/{{booking_id}}/cancellation
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

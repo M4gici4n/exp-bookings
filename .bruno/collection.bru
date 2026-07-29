@@ -1,0 +1,18 @@
+auth {
+  mode: none
+}
+
+docs {
+  # Experience Bookings API
+
+  Run the requests in order (1 to 4). Each one stores the id returned by the
+  server into a runtime variable, so the whole flow works without editing
+  anything:
+
+  1. Register Experience  -> stores experience_id
+  2. Create Session       -> stores session_id (starts 10 days from now)
+  3. Book Seats           -> stores booking_id
+  4. Cancel Booking       -> cancels booking_id
+
+  Select the "Local" environment first (base_url = http://localhost:8080).
+}

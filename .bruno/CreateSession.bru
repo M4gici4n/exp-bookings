@@ -1,0 +1,35 @@
+meta {
+  name: CreateSession
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/experiences/{{experience_id}}/sessions
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "startsAt": "{{starts_at}}",
+    "maxCapacity": 20,
+    "priceAmount": 4500,
+    "priceCurrency": "EUR"
+  }
+}
+
+script:pre-request {
+  const startsAt = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString();
+  bru.setVar("starts_at", startsAt);
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("session_id", res.body.data.id);
+  }
+}
+
+assert {
+  res.status: eq 201
+}
