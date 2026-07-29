@@ -24,6 +24,19 @@ final class InMemorySessionRepository implements SessionRepositoryInterface
         return $this->sessions[$id->value()] ?? throw SessionNotFoundException::withId($id);
     }
 
+    public function allByExperience(ExperienceId $experienceId): array
+    {
+        $matches = [];
+
+        foreach ($this->sessions as $session) {
+            if ($session->experienceId()->equals($experienceId)) {
+                $matches[] = $session;
+            }
+        }
+
+        return $matches;
+    }
+
     public function existsForExperienceOnDay(ExperienceId $experienceId, DateTimeImmutable $day): bool
     {
         foreach ($this->sessions as $session) {

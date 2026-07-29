@@ -1,0 +1,14 @@
+meta {
+  name: GetSession
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{base_url}}/sessions/{{session_id}}
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

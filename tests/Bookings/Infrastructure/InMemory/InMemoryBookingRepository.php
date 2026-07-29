@@ -6,6 +6,7 @@ use App\Bookings\Domain\Booking;
 use App\Bookings\Domain\Exception\BookingNotFoundException;
 use App\Bookings\Domain\Repository\BookingRepositoryInterface;
 use App\Bookings\Domain\ValueObject\BookingId;
+use App\Experiences\Domain\ValueObject\SessionId;
 
 final class InMemoryBookingRepository implements BookingRepositoryInterface
 {
@@ -20,5 +21,18 @@ final class InMemoryBookingRepository implements BookingRepositoryInterface
     public function get(BookingId $id): Booking
     {
         return $this->bookings[$id->value()] ?? throw BookingNotFoundException::withId($id);
+    }
+
+    public function allBySession(SessionId $sessionId): array
+    {
+        $matches = [];
+
+        foreach ($this->bookings as $booking) {
+            if ($booking->sessionId()->equals($sessionId)) {
+                $matches[] = $booking;
+            }
+        }
+
+        return $matches;
     }
 }

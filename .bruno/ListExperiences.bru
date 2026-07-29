@@ -1,0 +1,14 @@
+meta {
+  name: ListExperiences
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{base_url}}/experiences
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

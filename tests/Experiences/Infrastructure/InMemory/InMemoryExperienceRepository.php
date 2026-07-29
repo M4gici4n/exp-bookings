@@ -21,4 +21,9 @@ final class InMemoryExperienceRepository implements ExperienceRepositoryInterfac
     {
         return $this->experiences[$id->value()] ?? throw ExperienceNotFoundException::withId($id);
     }
+
+    public function all(): array
+    {
+        return array_values($this->experiences);
+    }
 }

@@ -29,6 +29,16 @@ final class DoctrineSessionRepository implements SessionRepositoryInterface
             ?? throw SessionNotFoundException::withId($id);
     }
 
+    public function allByExperience(ExperienceId $experienceId): array
+    {
+        return $this->entityManager
+            ->createQuery(
+                'SELECT s FROM ' . Session::class . ' s WHERE s.experienceId = :experienceId ORDER BY s.startsAt ASC'
+            )
+            ->setParameter('experienceId', $experienceId)
+            ->getResult();
+    }
+
     public function existsForExperienceOnDay(ExperienceId $experienceId, DateTimeImmutable $day): bool
     {
         $found = $this->entityManager->getConnection()->fetchOne(

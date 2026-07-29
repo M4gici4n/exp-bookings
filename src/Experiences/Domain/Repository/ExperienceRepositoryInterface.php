@@ -10,4 +10,7 @@ interface ExperienceRepositoryInterface
     public function save(Experience $experience): void;
 
     public function get(ExperienceId $id): Experience;
+
+    /** @return Experience[] */
+    public function all(): array;
 }

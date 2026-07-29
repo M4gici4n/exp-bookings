@@ -17,12 +17,12 @@ body:json {
   }
 }
 
+assert {
+  res.status: eq 201
+}
+
 script:post-response {
   if (res.status === 201) {
     bru.setVar("booking_id", res.body.data.id);
   }
-}
-
-assert {
-  res.status: eq 201
 }

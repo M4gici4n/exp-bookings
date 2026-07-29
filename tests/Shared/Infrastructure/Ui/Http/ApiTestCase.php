@@ -48,6 +48,11 @@ abstract class ApiTestCase extends WebTestCase
         $this->client->request('POST', $uri, [], [], ['CONTENT_TYPE' => 'application/json']);
     }
 
+    protected function get(string $uri): void
+    {
+        $this->client->request('GET', $uri);
+    }
+
     protected function statusCode(): int
     {
         return $this->client->getResponse()->getStatusCode();

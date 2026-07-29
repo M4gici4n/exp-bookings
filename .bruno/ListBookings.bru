@@ -1,0 +1,14 @@
+meta {
+  name: ListBookings
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{base_url}}/sessions/{{session_id}}/bookings
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

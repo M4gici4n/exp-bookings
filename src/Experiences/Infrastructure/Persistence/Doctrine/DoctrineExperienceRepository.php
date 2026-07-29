@@ -24,4 +24,11 @@ final class DoctrineExperienceRepository implements ExperienceRepositoryInterfac
         return $this->entityManager->find(Experience::class, $id)
             ?? throw ExperienceNotFoundException::withId($id);
     }
+
+    public function all(): array
+    {
+        return $this->entityManager
+            ->createQuery('SELECT e FROM ' . Experience::class . ' e ORDER BY e.id ASC')
+            ->getResult();
+    }
 }
