@@ -1,6 +1,5 @@
 doctrine_migrations:
     migrations_paths:
-        # namespace is arbitrary but should be different from App\Migrations
-        # as migrations classes should NOT be autoloaded
-        'DoctrineMigrations': '%kernel.project_dir%/migrations'
+        'App\Experiences\Infrastructure\Persistence\Doctrine\Migrations': '%kernel.project_dir%/src/Experiences/Infrastructure/Persistence/Doctrine/Migrations'
+        'App\Bookings\Infrastructure\Persistence\Doctrine\Migrations': '%kernel.project_dir%/src/Bookings/Infrastructure/Persistence/Doctrine/Migrations'
     enable_profiler: false

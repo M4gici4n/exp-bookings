@@ -3,7 +3,6 @@
 namespace App\Tests\Shared\Infrastructure\Persistence\Doctrine;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 abstract class DoctrineTestCase extends KernelTestCase
@@ -14,15 +13,16 @@ abstract class DoctrineTestCase extends KernelTestCase
     {
         self::bootKernel();
         $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
-
-        $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
-        $schemaTool = new SchemaTool($this->entityManager);
-        $schemaTool->dropSchema($metadata);
-        $schemaTool->createSchema($metadata);
+        $this->entityManager->getConnection()->beginTransaction();
     }
 
     protected function tearDown(): void
     {
+        $connection = $this->entityManager->getConnection();
+        if ($connection->isTransactionActive()) {
+            $connection->rollBack();
+        }
+
         $this->entityManager->clear();
         parent::tearDown();
     }
