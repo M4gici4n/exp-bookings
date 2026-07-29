@@ -25,6 +25,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Shared/Infrastructure/Persistence/Doctrine/Mapping/ValueObject'
                 prefix: 'App\Shared\Domain\ValueObject'
                 alias: SharedValueObject
+            Experiences:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Experiences/Infrastructure/Persistence/Doctrine/Mapping'
+                prefix: 'App\Experiences\Domain'
+                alias: Experiences
 
 when@test:
     doctrine:
