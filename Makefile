@@ -15,7 +15,7 @@ main:
 	$(MAKE) help
 
 build: ## Build and start all services
-	docker network inspect eic >/dev/null 2>&1 || docker network create eic >/dev/null
+	docker network inspect exp-bookings >/dev/null 2>&1 || docker network create exp-bookings >/dev/null
 	USER_ID=${USER_ID} \
 	GROUP_ID=${GROUP_ID} \
 	XDEBUG_HOST=${XDEBUG_HOST} \
@@ -67,7 +67,7 @@ restart: ## Restart all services
 	$(MAKE) stop && $(MAKE) run
 
 run: ## Start all services
-	docker network inspect eic >/dev/null 2>&1 || docker network create eic >/dev/null
+	docker network inspect exp-bookings >/dev/null 2>&1 || docker network create exp-bookings >/dev/null
 	USER_ID=${USER_ID} \
 	GROUP_ID=${GROUP_ID} \
 	XDEBUG_HOST=${XDEBUG_HOST} \
