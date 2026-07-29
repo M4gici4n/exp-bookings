@@ -33,10 +33,15 @@ final class AggregateRootTest extends TestCase
 
     private function newAggregateRoot(): object
     {
-        return new class (Ulid::of('01ARZ3NDEKTSV4RRFFQ69G5FAV')) extends AggregateRoot {
-            public function __construct(Ulid $id)
+        return new class extends AggregateRoot {
+            public function __construct()
             {
-                parent::__construct($id);
+                parent::__construct();
+            }
+
+            public function id(): Ulid
+            {
+                return Ulid::of('01ARZ3NDEKTSV4RRFFQ69G5FAV');
             }
 
             public function fire(DomainEventInterface $event): void

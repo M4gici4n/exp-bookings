@@ -6,8 +6,6 @@
 
     <mapped-superclass name="App\Shared\Domain\Entity\Entity">
 
-        <id name="id" type="ulid" column="id" length="26" />
-
         <field name="createdAt" column="created_at" type="datetimetz_immutable" />
         <field name="updatedAt" column="updated_at" type="datetimetz_immutable" nullable="true" />
 

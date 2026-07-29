@@ -6,9 +6,10 @@ use App\Shared\Domain\ValueObject\Ulid;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 
-final class UlidType extends Type
+abstract class AbstractUlidType extends Type
 {
-    public const NAME = 'ulid';
+    /** @return class-string<Ulid> */
+    abstract protected function targetClass(): string;
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
@@ -21,7 +22,9 @@ final class UlidType extends Type
             return null;
         }
 
-        return Ulid::of((string) $value);
+        $class = $this->targetClass();
+
+        return $class::of((string) $value);
     }
 
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string

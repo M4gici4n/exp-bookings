@@ -7,20 +7,15 @@ use DateTimeImmutable;
 
 abstract class Entity
 {
-    private Ulid $id;
     private DateTimeImmutable $createdAt;
     private ?DateTimeImmutable $updatedAt = null;
 
-    protected function __construct(Ulid $id)
+    protected function __construct()
     {
-        $this->id = $id;
         $this->createdAt = new DateTimeImmutable();
     }
 
-    public function id(): Ulid
-    {
-        return $this->id;
-    }
+    abstract public function id(): Ulid;
 
     public function createdAt(): DateTimeImmutable
     {

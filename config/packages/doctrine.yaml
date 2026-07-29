@@ -3,7 +3,11 @@ doctrine:
         url: '%env(resolve:DATABASE_URL)%'
         profiling_collect_backtrace: '%kernel.debug%'
         types:
-            ulid: App\Shared\Infrastructure\Persistence\Doctrine\Type\UlidType
+            experience_id: App\Experiences\Infrastructure\Persistence\Doctrine\Type\ExperienceIdType
+            session_id: App\Experiences\Infrastructure\Persistence\Doctrine\Type\SessionIdType
+            provider_id: App\Experiences\Infrastructure\Persistence\Doctrine\Type\ProviderIdType
+            booking_id: App\Bookings\Infrastructure\Persistence\Doctrine\Type\BookingIdType
+            user_id: App\Bookings\Infrastructure\Persistence\Doctrine\Type\UserIdType
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore
