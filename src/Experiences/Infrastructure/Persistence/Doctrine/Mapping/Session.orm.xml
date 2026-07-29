@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                                      ../../../../../../vendor/doctrine/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Experiences\Domain\Session" table="sessions">
+
+        <indexes>
+            <index name="idx_sessions_experience_starts_at" columns="experience_id,starts_at" />
+        </indexes>
+
+        <id name="id" column="id" type="session_id">
+            <generator strategy="NONE" />
+        </id>
+
+        <field name="experienceId" column="experience_id" type="experience_id" />
+        <field name="startsAt" column="starts_at" type="datetimetz_immutable" />
+        <field name="maxCapacity" column="max_capacity" type="integer" />
+        <field name="availableSeats" column="available_seats" type="integer" />
+
+        <embedded name="price" class="App\Shared\Domain\ValueObject\Money" column-prefix="price_" />
+
+    </entity>
+
+</doctrine-mapping>

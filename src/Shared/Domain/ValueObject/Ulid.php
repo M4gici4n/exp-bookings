@@ -2,7 +2,7 @@
 
 namespace App\Shared\Domain\ValueObject;
 
-use InvalidArgumentException;
+use App\Shared\Domain\Exception\InvalidUlidException;
 
 class Ulid
 {
@@ -15,7 +15,7 @@ class Ulid
         $value = strtoupper($value);
 
         if (preg_match(self::ULID_PATTERN, $value) !== 1) {
-            throw new InvalidArgumentException("Invalid ULID format: {$value}");
+            throw InvalidUlidException::withValue($value);
         }
 
         $this->value = $value;

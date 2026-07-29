@@ -2,7 +2,7 @@
 
 namespace App\Shared\Domain\ValueObject;
 
-use InvalidArgumentException;
+use App\Shared\Domain\Exception\UnsupportedCurrencyException;
 
 enum Currency: string
 {
@@ -14,7 +14,7 @@ enum Currency: string
     public static function fromCode(string $code): self
     {
         return self::tryFrom(strtoupper($code))
-            ?? throw new InvalidArgumentException("Unsupported currency code: {$code}");
+            ?? throw UnsupportedCurrencyException::withCode($code);
     }
 
     public function decimals(): int

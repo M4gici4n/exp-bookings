@@ -2,8 +2,8 @@
 
 namespace App\Tests\Shared\Domain\ValueObject;
 
+use App\Shared\Domain\Exception\InvalidUlidException;
 use App\Shared\Domain\ValueObject\Ulid;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 final class UlidTest extends TestCase
@@ -26,14 +26,14 @@ final class UlidTest extends TestCase
 
     public function testItRejectsStringWithWrongLength(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidUlidException::class);
 
         Ulid::of('TOOSHORT');
     }
 
     public function testItRejectsStringWithInvalidCharacters(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidUlidException::class);
 
         Ulid::of('01ARZ3NDEKTSV4RRFFQ69G5FAI');
     }

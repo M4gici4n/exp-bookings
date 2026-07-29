@@ -3,10 +3,10 @@
 namespace App\Tests\Experiences\Domain;
 
 use App\Experiences\Domain\Event\ExperienceRegistered;
+use App\Experiences\Domain\Exception\InvalidExperienceTitleException;
 use App\Experiences\Domain\Experience;
 use App\Experiences\Domain\ValueObject\ExperienceId;
 use App\Experiences\Domain\ValueObject\ProviderId;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 final class ExperienceTest extends TestCase
@@ -47,7 +47,7 @@ final class ExperienceTest extends TestCase
 
     public function testItRejectsAnEmptyTitle(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidExperienceTitleException::class);
 
         $this->registerExperience('   ');
     }

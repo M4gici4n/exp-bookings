@@ -3,10 +3,10 @@
 namespace App\Experiences\Domain;
 
 use App\Experiences\Domain\Event\ExperienceRegistered;
+use App\Experiences\Domain\Exception\InvalidExperienceTitleException;
 use App\Experiences\Domain\ValueObject\ExperienceId;
 use App\Experiences\Domain\ValueObject\ProviderId;
 use App\Shared\Domain\Entity\AggregateRoot;
-use InvalidArgumentException;
 
 final class Experience extends AggregateRoot
 {
@@ -66,7 +66,7 @@ final class Experience extends AggregateRoot
         $title = trim($title);
 
         if ($title === '') {
-            throw new InvalidArgumentException('Experience title cannot be empty.');
+            throw InvalidExperienceTitleException::empty();
         }
 
         return $title;

@@ -2,8 +2,8 @@
 
 namespace App\Tests\Shared\Domain\ValueObject;
 
+use App\Shared\Domain\Exception\UnsupportedCurrencyException;
 use App\Shared\Domain\ValueObject\Currency;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 final class CurrencyTest extends TestCase
@@ -32,7 +32,7 @@ final class CurrencyTest extends TestCase
 
     public function testItRejectsAnUnsupportedCurrencyCode(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(UnsupportedCurrencyException::class);
 
         Currency::fromCode('XXX');
     }
