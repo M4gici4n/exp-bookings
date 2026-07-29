@@ -31,6 +31,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Experiences/Infrastructure/Persistence/Doctrine/Mapping'
                 prefix: 'App\Experiences\Domain'
                 alias: Experiences
+            Bookings:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Bookings/Infrastructure/Persistence/Doctrine/Mapping'
+                prefix: 'App\Bookings\Domain'
+                alias: Bookings
 
 when@test:
     doctrine:
