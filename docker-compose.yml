@@ -1,0 +1,67 @@
+services:
+    exp-bookings-db:
+        image: mariadb:12.3
+        container_name: exp-bookings-db
+        environment:
+            - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+        ports:
+            - ${DB_PORT:-3306}:3306
+        networks:
+            - exp-bookings
+        volumes:
+            - .:/var/www
+            - exp-bookings-db-data:/var/lib/mysql
+
+    exp-bookings-phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: exp-bookings-phpmyadmin
+        environment:
+            - PMA_HOST=exp-bookings-db
+            - PMA_USER=root
+            - PMA_PASSWORD=
+        ports:
+            - ${PHP_PORT:-8081}:80
+        depends_on:
+            - exp-bookings-db
+        networks:
+            - exp-bookings
+
+    exp-bookings-php:
+        build:
+            context: ./docker/php
+            args:
+                USER_ID: ${USER_ID:-1000}
+                GROUP_ID: ${GROUP_ID:-1000}
+        pull_policy: missing
+        container_name: exp-bookings-php
+        depends_on:
+            - exp-bookings-db
+        networks:
+            - exp-bookings
+        volumes:
+            - .:/var/www:cached
+        environment:
+            XDEBUG_CONFIG: client_host=${XDEBUG_HOST:-172.17.0.1} client_port=${XDEBUG_PORT:-9003}
+        entrypoint: docker/php/entrypoint.sh
+        command: php-fpm
+
+    exp-bookings-nginx:
+        build:
+            context: ./docker/nginx
+        pull_policy: missing
+        container_name: exp-bookings-nginx
+        depends_on:
+            - exp-bookings-php
+        networks:
+            - exp-bookings
+        volumes:
+            - .:/var/www:cached
+        ports:
+            - ${NGINX_PORT:-8080}:80
+
+volumes:
+    exp-bookings-db-data: {}
+
+networks:
+    exp-bookings:
+        external: true
