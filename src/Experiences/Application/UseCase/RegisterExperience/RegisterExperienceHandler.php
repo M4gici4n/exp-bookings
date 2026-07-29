@@ -12,8 +12,7 @@ final class RegisterExperienceHandler
 {
     public function __construct(
         private readonly ExperienceRepositoryInterface $experiences,
-    ) {
-    }
+    ) {}
 
     public function __invoke(RegisterExperienceCommand $command): void
     {

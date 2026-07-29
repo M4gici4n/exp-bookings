@@ -9,6 +9,5 @@ final readonly class RegisterExperienceCommand
         public string $providerId,
         public string $title,
         public string $description,
-    ) {
-    }
+    ) {}
 }
