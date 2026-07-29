@@ -7,10 +7,12 @@ use App\Bookings\Domain\Exception\LateCancellationException;
 use App\Bookings\Domain\Repository\BookingRepositoryInterface;
 use App\Bookings\Domain\ValueObject\BookingId;
 use App\Experiences\Domain\Repository\SessionRepositoryInterface;
+use App\Shared\Application\Bus\Command\CommandHandlerInterface;
+use App\Shared\Domain\Event\EventDispatcherInterface;
 use App\Shared\Domain\Service\ClockInterface;
 use DateInterval;
 
-final class CancelBookingHandler
+final class CancelBookingHandler implements CommandHandlerInterface
 {
     private const string CANCELLATION_WINDOW = 'PT24H';
 
@@ -18,6 +20,7 @@ final class CancelBookingHandler
         private readonly BookingRepositoryInterface $bookings,
         private readonly SessionRepositoryInterface $sessions,
         private readonly ClockInterface $clock,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {}
 
     public function __invoke(CancelBookingCommand $command): void
@@ -35,5 +38,9 @@ final class CancelBookingHandler
 
         $this->bookings->save($booking);
         $this->sessions->releaseSeats($booking->sessionId(), $booking->seats());
+
+        foreach ($booking->pullEvents() as $event) {
+            $this->eventDispatcher->dispatch($event);
+        }
     }
 }

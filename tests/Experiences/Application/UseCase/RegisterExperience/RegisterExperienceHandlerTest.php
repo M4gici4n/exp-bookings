@@ -7,6 +7,7 @@ use App\Experiences\Application\UseCase\RegisterExperience\RegisterExperienceHan
 use App\Experiences\Domain\Event\ExperienceRegistered;
 use App\Experiences\Domain\ValueObject\ExperienceId;
 use App\Tests\Experiences\Infrastructure\InMemory\InMemoryExperienceRepository;
+use App\Tests\Shared\Infrastructure\Event\InMemoryEventDispatcher;
 use PHPUnit\Framework\TestCase;
 
 final class RegisterExperienceHandlerTest extends TestCase
@@ -14,26 +15,31 @@ final class RegisterExperienceHandlerTest extends TestCase
     private const EXPERIENCE_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
     private const PROVIDER_ID = '01ARZ3NDEKTSV4RRFFQ69G5FB0';
 
+    private InMemoryExperienceRepository $experiences;
+    private InMemoryEventDispatcher $eventDispatcher;
+    private RegisterExperienceHandler $handler;
+
+    protected function setUp(): void
+    {
+        $this->experiences = new InMemoryExperienceRepository();
+        $this->eventDispatcher = new InMemoryEventDispatcher();
+        $this->handler = new RegisterExperienceHandler($this->experiences, $this->eventDispatcher);
+    }
+
     public function testItRegistersAnExperience(): void
     {
-        $experiences = new InMemoryExperienceRepository();
-        $handler = new RegisterExperienceHandler($experiences);
+        ($this->handler)($this->command());
 
-        ($handler)($this->command());
-
-        $saved = $experiences->get(ExperienceId::of(self::EXPERIENCE_ID));
+        $saved = $this->experiences->get(ExperienceId::of(self::EXPERIENCE_ID));
         self::assertSame(self::PROVIDER_ID, $saved->providerId()->value());
         self::assertSame('Kayak sunset tour', $saved->title());
     }
 
-    public function testItRecordsAnExperienceRegisteredEvent(): void
+    public function testItDispatchesAnExperienceRegisteredEvent(): void
     {
-        $experiences = new InMemoryExperienceRepository();
-        $handler = new RegisterExperienceHandler($experiences);
+        ($this->handler)($this->command());
 
-        ($handler)($this->command());
-
-        $events = $experiences->get(ExperienceId::of(self::EXPERIENCE_ID))->pullEvents();
+        $events = $this->eventDispatcher->dispatchedEvents();
 
         self::assertCount(1, $events);
         self::assertInstanceOf(ExperienceRegistered::class, $events[0]);

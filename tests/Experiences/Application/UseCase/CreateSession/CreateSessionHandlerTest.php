@@ -11,8 +11,10 @@ use App\Experiences\Domain\Experience;
 use App\Experiences\Domain\ValueObject\ExperienceId;
 use App\Experiences\Domain\ValueObject\ProviderId;
 use App\Experiences\Domain\ValueObject\SessionId;
+use App\Experiences\Domain\Event\SessionScheduled;
 use App\Tests\Experiences\Infrastructure\InMemory\InMemoryExperienceRepository;
 use App\Tests\Experiences\Infrastructure\InMemory\InMemorySessionRepository;
+use App\Tests\Shared\Infrastructure\Event\InMemoryEventDispatcher;
 use App\Tests\Shared\Infrastructure\Service\FixedClock;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
@@ -28,16 +30,19 @@ final class CreateSessionHandlerTest extends TestCase
 
     private InMemoryExperienceRepository $experiences;
     private InMemorySessionRepository $sessions;
+    private InMemoryEventDispatcher $eventDispatcher;
     private CreateSessionHandler $handler;
 
     protected function setUp(): void
     {
         $this->experiences = new InMemoryExperienceRepository();
         $this->sessions = new InMemorySessionRepository();
+        $this->eventDispatcher = new InMemoryEventDispatcher();
         $this->handler = new CreateSessionHandler(
             $this->experiences,
             $this->sessions,
             new FixedClock(new DateTimeImmutable(self::NOW)),
+            $this->eventDispatcher,
         );
     }
 
@@ -51,6 +56,17 @@ final class CreateSessionHandlerTest extends TestCase
         self::assertSame(self::EXPERIENCE_ID, $session->experienceId()->value());
         self::assertSame(10, $session->maxCapacity());
         self::assertSame(10, $session->availableSeats());
+    }
+
+    public function testItDispatchesASessionScheduledEvent(): void
+    {
+        $this->givenExistingExperience();
+
+        ($this->handler)($this->command());
+
+        $events = $this->eventDispatcher->dispatchedEvents();
+        self::assertCount(1, $events);
+        self::assertInstanceOf(SessionScheduled::class, $events[0]);
     }
 
     public function testItRejectsWhenExperienceDoesNotExist(): void

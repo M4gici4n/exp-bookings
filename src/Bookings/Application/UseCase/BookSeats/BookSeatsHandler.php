@@ -10,14 +10,17 @@ use App\Bookings\Domain\ValueObject\UserId;
 use App\Experiences\Domain\Exception\SessionAlreadyStartedException;
 use App\Experiences\Domain\Repository\SessionRepositoryInterface;
 use App\Experiences\Domain\ValueObject\SessionId;
+use App\Shared\Application\Bus\Command\CommandHandlerInterface;
+use App\Shared\Domain\Event\EventDispatcherInterface;
 use App\Shared\Domain\Service\ClockInterface;
 
-final class BookSeatsHandler
+final class BookSeatsHandler implements CommandHandlerInterface
 {
     public function __construct(
         private readonly SessionRepositoryInterface $sessions,
         private readonly BookingRepositoryInterface $bookings,
         private readonly ClockInterface $clock,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {}
 
     public function __invoke(BookSeatsCommand $command): void
@@ -41,5 +44,9 @@ final class BookSeatsHandler
         );
 
         $this->bookings->save($booking);
+
+        foreach ($booking->pullEvents() as $event) {
+            $this->eventDispatcher->dispatch($event);
+        }
     }
 }

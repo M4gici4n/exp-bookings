@@ -5,6 +5,7 @@ namespace App\Tests\Bookings\Application\UseCase\CancelBooking;
 use App\Bookings\Application\UseCase\CancelBooking\CancelBookingCommand;
 use App\Bookings\Application\UseCase\CancelBooking\CancelBookingHandler;
 use App\Bookings\Domain\Booking;
+use App\Bookings\Domain\Event\BookingCancelled;
 use App\Bookings\Domain\Exception\BookingAlreadyCancelledException;
 use App\Bookings\Domain\Exception\BookingNotFoundException;
 use App\Bookings\Domain\Exception\LateCancellationException;
@@ -18,6 +19,7 @@ use App\Shared\Domain\ValueObject\Currency;
 use App\Shared\Domain\ValueObject\Money;
 use App\Tests\Bookings\Infrastructure\InMemory\InMemoryBookingRepository;
 use App\Tests\Experiences\Infrastructure\InMemory\InMemorySessionRepository;
+use App\Tests\Shared\Infrastructure\Event\InMemoryEventDispatcher;
 use App\Tests\Shared\Infrastructure\Service\FixedClock;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
@@ -37,11 +39,13 @@ final class CancelBookingHandlerTest extends TestCase
 
     private InMemorySessionRepository $sessions;
     private InMemoryBookingRepository $bookings;
+    private InMemoryEventDispatcher $eventDispatcher;
 
     protected function setUp(): void
     {
         $this->sessions = new InMemorySessionRepository();
         $this->bookings = new InMemoryBookingRepository();
+        $this->eventDispatcher = new InMemoryEventDispatcher();
     }
 
     public function testItCancelsABookingAndReleasesSeats(): void
@@ -53,6 +57,18 @@ final class CancelBookingHandlerTest extends TestCase
 
         self::assertSame(BookingStatus::CANCELLED, $this->bookings->get(BookingId::of(self::BOOKING_ID))->status());
         self::assertSame(self::CAPACITY, $this->sessions->get(SessionId::of(self::SESSION_ID))->availableSeats());
+    }
+
+    public function testItDispatchesABookingCancelledEvent(): void
+    {
+        $this->givenSessionWithReservedSeats();
+        $this->givenConfirmedBooking();
+
+        ($this->handlerAt(self::CANCEL_ALLOWED_AT))(new CancelBookingCommand(self::BOOKING_ID));
+
+        $events = $this->eventDispatcher->dispatchedEvents();
+        self::assertCount(1, $events);
+        self::assertInstanceOf(BookingCancelled::class, $events[0]);
     }
 
     public function testItRejectsWhenBookingDoesNotExist(): void
@@ -106,6 +122,8 @@ final class CancelBookingHandlerTest extends TestCase
             Money::of(7500, Currency::EUR),
         );
 
+        $booking->pullEvents();
+
         if ($cancelled) {
             $booking->cancel();
         }
@@ -119,6 +137,7 @@ final class CancelBookingHandlerTest extends TestCase
             $this->bookings,
             $this->sessions,
             new FixedClock(new DateTimeImmutable($now)),
+            $this->eventDispatcher,
         );
     }
 }

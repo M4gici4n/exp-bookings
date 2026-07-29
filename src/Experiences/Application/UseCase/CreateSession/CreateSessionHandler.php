@@ -11,15 +11,18 @@ use App\Experiences\Domain\ValueObject\ExperienceId;
 use App\Experiences\Domain\ValueObject\SessionId;
 use App\Shared\Domain\Service\ClockInterface;
 use App\Shared\Domain\ValueObject\Currency;
+use App\Shared\Application\Bus\Command\CommandHandlerInterface;
+use App\Shared\Domain\Event\EventDispatcherInterface;
 use App\Shared\Domain\ValueObject\Money;
 use DateTimeImmutable;
 
-final class CreateSessionHandler
+final class CreateSessionHandler implements CommandHandlerInterface
 {
     public function __construct(
         private readonly ExperienceRepositoryInterface $experiences,
         private readonly SessionRepositoryInterface $sessions,
         private readonly ClockInterface $clock,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {}
 
     public function __invoke(CreateSessionCommand $command): void
@@ -44,5 +47,9 @@ final class CreateSessionHandler
         );
 
         $this->sessions->save($session);
+
+        foreach ($session->pullEvents() as $event) {
+            $this->eventDispatcher->dispatch($event);
+        }
     }
 }

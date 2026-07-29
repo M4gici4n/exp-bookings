@@ -4,6 +4,7 @@ namespace App\Tests\Bookings\Application\UseCase\BookSeats;
 
 use App\Bookings\Application\UseCase\BookSeats\BookSeatsCommand;
 use App\Bookings\Application\UseCase\BookSeats\BookSeatsHandler;
+use App\Bookings\Domain\Event\BookingConfirmed;
 use App\Bookings\Domain\ValueObject\BookingId;
 use App\Bookings\Domain\ValueObject\BookingStatus;
 use App\Experiences\Domain\Exception\NotEnoughSeatsException;
@@ -16,6 +17,7 @@ use App\Shared\Domain\ValueObject\Currency;
 use App\Shared\Domain\ValueObject\Money;
 use App\Tests\Bookings\Infrastructure\InMemory\InMemoryBookingRepository;
 use App\Tests\Experiences\Infrastructure\InMemory\InMemorySessionRepository;
+use App\Tests\Shared\Infrastructure\Event\InMemoryEventDispatcher;
 use App\Tests\Shared\Infrastructure\Service\FixedClock;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
@@ -33,11 +35,13 @@ final class BookSeatsHandlerTest extends TestCase
 
     private InMemorySessionRepository $sessions;
     private InMemoryBookingRepository $bookings;
+    private InMemoryEventDispatcher $eventDispatcher;
 
     protected function setUp(): void
     {
         $this->sessions = new InMemorySessionRepository();
         $this->bookings = new InMemoryBookingRepository();
+        $this->eventDispatcher = new InMemoryEventDispatcher();
     }
 
     public function testItBooksSeats(): void
@@ -54,6 +58,17 @@ final class BookSeatsHandlerTest extends TestCase
         self::assertTrue($booking->totalPrice()->equals(Money::of(7500, Currency::EUR)));
 
         self::assertSame(self::CAPACITY - 3, $this->sessions->get(SessionId::of(self::SESSION_ID))->availableSeats());
+    }
+
+    public function testItDispatchesABookingConfirmedEvent(): void
+    {
+        $this->givenScheduledSession();
+
+        ($this->handlerAt(self::NOW))($this->command(seats: 3));
+
+        $events = $this->eventDispatcher->dispatchedEvents();
+        self::assertCount(1, $events);
+        self::assertInstanceOf(BookingConfirmed::class, $events[0]);
     }
 
     public function testItRejectsWhenSessionDoesNotExist(): void
@@ -99,6 +114,7 @@ final class BookSeatsHandlerTest extends TestCase
             $this->sessions,
             $this->bookings,
             new FixedClock(new DateTimeImmutable($now)),
+            $this->eventDispatcher,
         );
     }
 
