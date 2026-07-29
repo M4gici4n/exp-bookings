@@ -33,6 +33,10 @@ composer-dump: ## Run composer dump-autoload
 composer-install: ## Run composer install
 	docker exec -it ${DOCKER_PHP} composer install
 
+create-db: ## Create a database
+	docker exec -it ${DOCKER_PHP} bin/console doctrine:database:create --if-not-exists
+	docker exec -it ${DOCKER_PHP} bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+
 down: ## Stop and remove all services
 	docker compose down
 

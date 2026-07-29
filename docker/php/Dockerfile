@@ -26,7 +26,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install required extensions
-RUN MAKEFLAGS="-j$(nproc)" install-php-extensions xml zip xdebug
+RUN MAKEFLAGS="-j$(nproc)" install-php-extensions pdo pdo_mysql xml zip xdebug
 
 # Configure Xdebug
 RUN echo "xdebug.mode=develop,debug" >> /usr/local/etc/php/conf.d/xdebug.ini \
