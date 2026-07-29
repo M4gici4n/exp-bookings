@@ -8,4 +8,9 @@ final class InvalidUlidException extends DomainException
     {
         return new self("Invalid ULID format: {$value}");
     }
+
+    public function errorStatus(): ErrorStatus
+    {
+        return ErrorStatus::InvalidArgument;
+    }
 }

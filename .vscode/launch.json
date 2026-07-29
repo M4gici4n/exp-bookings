@@ -1,0 +1,13 @@
+{
+    "configurations": [
+    {
+        "name": "Xdebug for Docker",
+        "type": "php",
+        "request": "launch",
+        "port": 9003,
+        "pathMappings": {
+            "/var/www": "${workspaceFolder}"
+        }
+    }
+    ]
+}

@@ -8,4 +8,9 @@ final class UnsupportedCurrencyException extends DomainException
     {
         return new self("Unsupported currency code: {$code}");
     }
+
+    public function errorStatus(): ErrorStatus
+    {
+        return ErrorStatus::InvalidArgument;
+    }
 }

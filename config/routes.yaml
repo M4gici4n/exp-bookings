@@ -1,11 +1,13 @@
 # yaml-language-server: $schema=../vendor/symfony/routing/Loader/schema/routing.schema.json
 
-# This file is the entry point to configure the routes of your app.
-# Methods with the #[Route] attribute are automatically imported.
-# See also https://symfony.com/doc/current/routing.html
+experiences_controllers:
+    resource:
+        path: ../src/Experiences/Infrastructure/Ui/Http/Controller/
+        namespace: App\Experiences\Infrastructure\Ui\Http\Controller
+    type: attribute
 
-# To list all registered routes, run the following command:
-#   bin/console debug:router
-
-controllers:
-    resource: routing.controllers
+bookings_controllers:
+    resource:
+        path: ../src/Bookings/Infrastructure/Ui/Http/Controller/
+        namespace: App\Bookings\Infrastructure\Ui\Http\Controller
+    type: attribute
