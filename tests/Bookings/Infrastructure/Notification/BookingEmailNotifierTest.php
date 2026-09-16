@@ -19,7 +19,7 @@ final class BookingEmailNotifierTest extends TestCase
     private const SESSION_ID = '01ARZ3NDEKTSV4RRFFQ69G5FB0';
     private const USER_ID = '01ARZ3NDEKTSV4RRFFQ69G5FC1';
     private const CONTACT_EMAIL = 'contact@example.test';
-    private const SEATS = 3;
+    private const SPOTS = 3;
 
     private RecordingMailer $mailer;
     private BookingEmailNotifier $notifier;
@@ -36,7 +36,7 @@ final class BookingEmailNotifierTest extends TestCase
             BookingId::of(self::BOOKING_ID),
             SessionId::of(self::SESSION_ID),
             UserId::of(self::USER_ID),
-            self::SEATS,
+            self::SPOTS,
             Money::of(7500, Currency::EUR),
         ));
 
@@ -51,7 +51,7 @@ final class BookingEmailNotifierTest extends TestCase
             BookingId::of(self::BOOKING_ID),
             SessionId::of(self::SESSION_ID),
             UserId::of(self::USER_ID),
-            self::SEATS,
+            self::SPOTS,
         ));
 
         self::assertCount(1, $this->mailer->sent);

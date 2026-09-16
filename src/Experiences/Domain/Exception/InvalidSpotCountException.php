@@ -5,11 +5,11 @@ namespace App\Experiences\Domain\Exception;
 use App\Shared\Domain\Exception\DomainException;
 use App\Shared\Domain\Exception\ErrorStatus;
 
-final class InvalidSeatCountException extends DomainException
+final class InvalidSpotCountException extends DomainException
 {
-    public static function of(int $seats): self
+    public static function of(int $spots): self
     {
-        return new self("Seats must be a positive number, got {$seats}.");
+        return new self("Spots must be a positive number, got {$spots}.");
     }
 
     public function errorStatus(): ErrorStatus

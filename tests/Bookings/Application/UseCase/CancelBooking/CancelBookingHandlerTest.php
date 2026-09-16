@@ -35,7 +35,7 @@ final class CancelBookingHandlerTest extends TestCase
     private const CANCEL_ALLOWED_AT = '2026-08-10 12:00:00';
     private const CANCEL_TOO_LATE_AT = '2026-08-15 00:00:00';
     private const CAPACITY = 10;
-    private const SEATS = 3;
+    private const SPOTS = 3;
 
     private InMemorySessionRepository $sessions;
     private InMemoryBookingRepository $bookings;
@@ -48,20 +48,20 @@ final class CancelBookingHandlerTest extends TestCase
         $this->eventDispatcher = new InMemoryEventDispatcher();
     }
 
-    public function testItCancelsABookingAndReleasesSeats(): void
+    public function testItCancelsABookingAndReleasesSpots(): void
     {
-        $this->givenSessionWithReservedSeats();
+        $this->givenSessionWithReservedSpots();
         $this->givenConfirmedBooking();
 
         ($this->handlerAt(self::CANCEL_ALLOWED_AT))(new CancelBookingCommand(self::BOOKING_ID));
 
         self::assertSame(BookingStatus::CANCELLED, $this->bookings->get(BookingId::of(self::BOOKING_ID))->status());
-        self::assertSame(self::CAPACITY, $this->sessions->get(SessionId::of(self::SESSION_ID))->availableSeats());
+        self::assertSame(self::CAPACITY, $this->sessions->get(SessionId::of(self::SESSION_ID))->availableSpots());
     }
 
     public function testItDispatchesABookingCancelledEvent(): void
     {
-        $this->givenSessionWithReservedSeats();
+        $this->givenSessionWithReservedSpots();
         $this->givenConfirmedBooking();
 
         ($this->handlerAt(self::CANCEL_ALLOWED_AT))(new CancelBookingCommand(self::BOOKING_ID));
@@ -80,7 +80,7 @@ final class CancelBookingHandlerTest extends TestCase
 
     public function testItRejectsCancellingWithin24HoursOfTheSessionStart(): void
     {
-        $this->givenSessionWithReservedSeats();
+        $this->givenSessionWithReservedSpots();
         $this->givenConfirmedBooking();
 
         $this->expectException(LateCancellationException::class);
@@ -90,7 +90,7 @@ final class CancelBookingHandlerTest extends TestCase
 
     public function testItRejectsCancellingAnAlreadyCancelledBooking(): void
     {
-        $this->givenSessionWithReservedSeats();
+        $this->givenSessionWithReservedSpots();
         $this->givenConfirmedBooking(cancelled: true);
 
         $this->expectException(BookingAlreadyCancelledException::class);
@@ -98,7 +98,7 @@ final class CancelBookingHandlerTest extends TestCase
         ($this->handlerAt(self::CANCEL_ALLOWED_AT))(new CancelBookingCommand(self::BOOKING_ID));
     }
 
-    private function givenSessionWithReservedSeats(): void
+    private function givenSessionWithReservedSpots(): void
     {
         $this->sessions->save(Session::schedule(
             SessionId::of(self::SESSION_ID),
@@ -109,16 +109,16 @@ final class CancelBookingHandlerTest extends TestCase
             new DateTimeImmutable(self::SCHEDULED_AT),
         ));
 
-        $this->sessions->get(SessionId::of(self::SESSION_ID))->reserve(self::SEATS);
+        $this->sessions->get(SessionId::of(self::SESSION_ID))->reserve(self::SPOTS);
     }
 
     private function givenConfirmedBooking(bool $cancelled = false): void
     {
-        $booking = Booking::confirm(
+        $booking = Booking::create(
             BookingId::of(self::BOOKING_ID),
             SessionId::of(self::SESSION_ID),
             UserId::of(self::USER_ID),
-            self::SEATS,
+            self::SPOTS,
             Money::of(7500, Currency::EUR),
         );
 

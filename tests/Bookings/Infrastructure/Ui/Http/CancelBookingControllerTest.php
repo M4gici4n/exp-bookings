@@ -70,7 +70,7 @@ final class CancelBookingControllerTest extends ApiTestCase
         ]);
         $sessionId = $this->json()['data']['id'];
 
-        $this->postJson("/sessions/{$sessionId}/bookings", ['userId' => self::USER_ID, 'seats' => 2]);
+        $this->postJson("/sessions/{$sessionId}/bookings", ['userId' => self::USER_ID, 'spots' => 2]);
 
         return $this->json()['data']['id'];
     }

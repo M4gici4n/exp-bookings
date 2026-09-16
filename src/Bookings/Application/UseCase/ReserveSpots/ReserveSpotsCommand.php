@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace App\Bookings\Application\UseCase\BookSeats;
+namespace App\Bookings\Application\UseCase\ReserveSpots;
 
-final readonly class BookSeatsCommand
+final readonly class ReserveSpotsCommand
 {
     public function __construct(
         public string $bookingId,
         public string $sessionId,
         public string $userId,
-        public int $seats,
+        public int $spots,
     ) {}
 }

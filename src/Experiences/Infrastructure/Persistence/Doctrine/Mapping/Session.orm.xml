@@ -17,7 +17,7 @@
         <field name="experienceId" column="experience_id" type="experience_id" />
         <field name="startsAt" column="starts_at" type="datetimetz_immutable" />
         <field name="maxCapacity" column="max_capacity" type="integer" />
-        <field name="availableSeats" column="available_seats" type="integer" />
+        <field name="availableSpots" column="available_spots" type="integer" />
 
         <embedded name="price" class="App\Shared\Domain\ValueObject\Money" column-prefix="price_" />
 

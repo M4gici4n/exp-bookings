@@ -57,9 +57,9 @@ final class ListBookingsControllerTest extends ApiTestCase
         return $this->json()['data']['id'];
     }
 
-    private function book(string $sessionId, int $seats): string
+    private function book(string $sessionId, int $spots): string
     {
-        $this->postJson("/sessions/{$sessionId}/bookings", ['userId' => self::USER_ID, 'seats' => $seats]);
+        $this->postJson("/sessions/{$sessionId}/bookings", ['userId' => self::USER_ID, 'spots' => $spots]);
 
         return $this->json()['data']['id'];
     }

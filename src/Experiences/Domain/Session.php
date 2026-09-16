@@ -3,10 +3,10 @@
 namespace App\Experiences\Domain;
 
 use App\Experiences\Domain\Event\SessionScheduled;
-use App\Experiences\Domain\Exception\InvalidSeatCountException;
+use App\Experiences\Domain\Exception\InvalidSpotCountException;
 use App\Experiences\Domain\Exception\InvalidSessionCapacityException;
 use App\Experiences\Domain\Exception\InvalidSessionPriceException;
-use App\Experiences\Domain\Exception\NotEnoughSeatsException;
+use App\Experiences\Domain\Exception\NotEnoughSpotsException;
 use App\Experiences\Domain\Exception\PastSessionDateException;
 use App\Experiences\Domain\ValueObject\ExperienceId;
 use App\Experiences\Domain\ValueObject\SessionId;
@@ -21,7 +21,7 @@ final class Session extends AggregateRoot
     private ExperienceId $experienceId;
     private DateTimeImmutable $startsAt;
     private int $maxCapacity;
-    private int $availableSeats;
+    private int $availableSpots;
     private Money $price;
 
     private function __construct(
@@ -37,7 +37,7 @@ final class Session extends AggregateRoot
         $this->experienceId = $experienceId;
         $this->startsAt = $startsAt;
         $this->maxCapacity = $maxCapacity;
-        $this->availableSeats = $maxCapacity;
+        $this->availableSpots = $maxCapacity;
         $this->price = $price;
     }
 
@@ -57,33 +57,33 @@ final class Session extends AggregateRoot
         return $session;
     }
 
-    public function reserve(int $seats): void
+    public function reserve(int $spots): void
     {
-        $this->guardPositiveSeats($seats);
+        $this->guardPositiveSpots($spots);
 
-        if ($seats > $this->availableSeats) {
-            throw NotEnoughSeatsException::requested($seats, $this->availableSeats);
+        if ($spots > $this->availableSpots) {
+            throw NotEnoughSpotsException::requested($spots, $this->availableSpots);
         }
 
-        $this->availableSeats -= $seats;
+        $this->availableSpots -= $spots;
     }
 
-    public function release(int $seats): void
+    public function release(int $spots): void
     {
-        $this->guardPositiveSeats($seats);
+        $this->guardPositiveSpots($spots);
 
-        if ($this->availableSeats + $seats > $this->maxCapacity) {
-            throw new LogicException('Releasing seats would exceed the session capacity.');
+        if ($this->availableSpots + $spots > $this->maxCapacity) {
+            throw new LogicException('Releasing spots would exceed the session capacity.');
         }
 
-        $this->availableSeats += $seats;
+        $this->availableSpots += $spots;
     }
 
-    public function priceFor(int $seats): Money
+    public function totalPriceFor(int $spots): Money
     {
-        $this->guardPositiveSeats($seats);
+        $this->guardPositiveSpots($spots);
 
-        return $this->price->multiply($seats);
+        return $this->price->multiply($spots);
     }
 
     public function hasStarted(DateTimeImmutable $now): bool
@@ -111,9 +111,9 @@ final class Session extends AggregateRoot
         return $this->maxCapacity;
     }
 
-    public function availableSeats(): int
+    public function availableSpots(): int
     {
-        return $this->availableSeats;
+        return $this->availableSpots;
     }
 
     public function price(): Money
@@ -140,10 +140,10 @@ final class Session extends AggregateRoot
         }
     }
 
-    private function guardPositiveSeats(int $seats): void
+    private function guardPositiveSpots(int $spots): void
     {
-        if ($seats < 1) {
-            throw InvalidSeatCountException::of($seats);
+        if ($spots < 1) {
+            throw InvalidSpotCountException::of($spots);
         }
     }
 }

@@ -6,17 +6,17 @@ use App\Tests\Shared\Infrastructure\Ui\Http\ApiTestCase;
 use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\Response;
 
-final class BookSeatsControllerTest extends ApiTestCase
+final class ReserveSpotsControllerTest extends ApiTestCase
 {
     private const string PROVIDER_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
     private const string USER_ID = '01ARZ3NDEKTSV4RRFFQ69G5FBW';
     private const string UNKNOWN_SESSION_ID = '01ARZ3NDEKTSV4RRFFQ69G5FZZ';
 
-    public function testBooksSeatsAndReturnsCreatedWithLocation(): void
+    public function testBooksSpotsAndReturnsCreatedWithLocation(): void
     {
         $sessionId = $this->createSession(20);
 
-        $this->postJson("/sessions/{$sessionId}/bookings", ['userId' => self::USER_ID, 'seats' => 3]);
+        $this->postJson("/sessions/{$sessionId}/bookings", ['userId' => self::USER_ID, 'spots' => 3]);
 
         self::assertSame(Response::HTTP_CREATED, $this->statusCode());
 
@@ -25,25 +25,25 @@ final class BookSeatsControllerTest extends ApiTestCase
         self::assertSame('/bookings/' . $id, $this->client->getResponse()->headers->get('Location'));
     }
 
-    public function testBookingMoreSeatsThanAvailableReturnsConflict(): void
+    public function testBookingMoreSpotsThanAvailableReturnsConflict(): void
     {
         $sessionId = $this->createSession(2);
 
-        $this->postJson("/sessions/{$sessionId}/bookings", ['userId' => self::USER_ID, 'seats' => 3]);
+        $this->postJson("/sessions/{$sessionId}/bookings", ['userId' => self::USER_ID, 'spots' => 3]);
 
         self::assertSame(Response::HTTP_CONFLICT, $this->statusCode());
-        self::assertSame('NOT_ENOUGH_SEATS', $this->json()['error']['code']);
+        self::assertSame('NOT_ENOUGH_SPOTS', $this->json()['error']['code']);
     }
 
     public function testUnknownSessionReturnsNotFound(): void
     {
-        $this->postJson('/sessions/' . self::UNKNOWN_SESSION_ID . '/bookings', ['userId' => self::USER_ID, 'seats' => 1]);
+        $this->postJson('/sessions/' . self::UNKNOWN_SESSION_ID . '/bookings', ['userId' => self::USER_ID, 'spots' => 1]);
 
         self::assertSame(Response::HTTP_NOT_FOUND, $this->statusCode());
         self::assertSame('SESSION_NOT_FOUND', $this->json()['error']['code']);
     }
 
-    public function testMissingSeatsReturnsValidationError(): void
+    public function testMissingSpotsReturnsValidationError(): void
     {
         $sessionId = $this->createSession(20);
 
@@ -53,7 +53,7 @@ final class BookSeatsControllerTest extends ApiTestCase
 
         $error = $this->json()['error'];
         self::assertSame('VALIDATION_FAILED', $error['code']);
-        self::assertSame('seats', $error['details']['errors'][0]['target']);
+        self::assertSame('spots', $error['details']['errors'][0]['target']);
     }
 
     private function createSession(int $maxCapacity): string

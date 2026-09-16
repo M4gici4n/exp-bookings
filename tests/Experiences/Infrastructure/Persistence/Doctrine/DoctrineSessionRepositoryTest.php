@@ -2,7 +2,7 @@
 
 namespace App\Tests\Experiences\Infrastructure\Persistence\Doctrine;
 
-use App\Experiences\Domain\Exception\NotEnoughSeatsException;
+use App\Experiences\Domain\Exception\NotEnoughSpotsException;
 use App\Experiences\Domain\Exception\SessionNotFoundException;
 use App\Experiences\Domain\Session;
 use App\Experiences\Domain\ValueObject\ExperienceId;
@@ -38,7 +38,7 @@ final class DoctrineSessionRepositoryTest extends DoctrineTestCase
         self::assertSame(self::SESSION_ID, $session->id()->value());
         self::assertSame(self::EXPERIENCE_ID, $session->experienceId()->value());
         self::assertSame(8, $session->maxCapacity());
-        self::assertSame(8, $session->availableSeats());
+        self::assertSame(8, $session->availableSpots());
         self::assertTrue($session->price()->equals(Money::of(2500, Currency::EUR)));
         self::assertSame(
             (new DateTimeImmutable(self::STARTS_AT))->getTimestamp(),
@@ -54,10 +54,10 @@ final class DoctrineSessionRepositoryTest extends DoctrineTestCase
         $session = $this->repository->getForModification(SessionId::of(self::SESSION_ID));
 
         self::assertSame(self::SESSION_ID, $session->id()->value());
-        self::assertSame(8, $session->availableSeats());
+        self::assertSame(8, $session->availableSpots());
     }
 
-    public function testItReservesSeatsThroughTheAggregate(): void
+    public function testItReservesSpotsThroughTheAggregate(): void
     {
         $this->persist($this->session(capacity: 3));
         $this->entityManager->clear();
@@ -67,10 +67,10 @@ final class DoctrineSessionRepositoryTest extends DoctrineTestCase
         $session->reserve(2);
         $this->entityManager->flush();
 
-        self::assertSame(1, $this->freshAvailableSeats($id));
+        self::assertSame(1, $this->freshAvailableSpots($id));
     }
 
-    public function testItRejectsReservingMoreSeatsThanAvailableWithoutTouchingTheCount(): void
+    public function testItRejectsReservingMoreSpotsThanAvailableWithoutTouchingTheCount(): void
     {
         $this->persist($this->session(capacity: 3));
         $this->entityManager->clear();
@@ -79,13 +79,13 @@ final class DoctrineSessionRepositoryTest extends DoctrineTestCase
 
         try {
             $this->repository->getForModification($id)->reserve(4);
-            self::fail('Expected NotEnoughSeatsException.');
-        } catch (NotEnoughSeatsException) {
-            self::assertSame(3, $this->freshAvailableSeats($id));
+            self::fail('Expected NotEnoughSpotsException.');
+        } catch (NotEnoughSpotsException) {
+            self::assertSame(3, $this->freshAvailableSpots($id));
         }
     }
 
-    public function testItReleasesSeatsThroughTheAggregate(): void
+    public function testItReleasesSpotsThroughTheAggregate(): void
     {
         $this->persist($this->session(capacity: 5));
         $this->entityManager->clear();
@@ -96,7 +96,7 @@ final class DoctrineSessionRepositoryTest extends DoctrineTestCase
         $session->release(3);
         $this->entityManager->flush();
 
-        self::assertSame(4, $this->freshAvailableSeats($id));
+        self::assertSame(4, $this->freshAvailableSpots($id));
     }
 
     public function testGetForModificationThrowsWhenSessionDoesNotExist(): void
@@ -112,11 +112,11 @@ final class DoctrineSessionRepositoryTest extends DoctrineTestCase
         $this->entityManager->flush();
     }
 
-    private function freshAvailableSeats(SessionId $id): int
+    private function freshAvailableSpots(SessionId $id): int
     {
         $this->entityManager->clear();
 
-        return $this->repository->get($id)->availableSeats();
+        return $this->repository->get($id)->availableSpots();
     }
 
     private function session(int $capacity = 10): Session

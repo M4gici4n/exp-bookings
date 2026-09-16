@@ -2,7 +2,7 @@
 
 namespace App\Bookings\Infrastructure\Ui\Http\Controller;
 
-use App\Bookings\Application\UseCase\BookSeats\BookSeatsCommand;
+use App\Bookings\Application\UseCase\ReserveSpots\ReserveSpotsCommand;
 use App\Shared\Application\Bus\Command\CommandBusInterface;
 use App\Shared\Domain\Service\UlidGeneratorInterface;
 use App\Shared\Infrastructure\Ui\Http\JsonRequest;
@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class BookSeatsController
+final class ReserveSpotsController
 {
     public function __construct(
         private readonly CommandBusInterface $commandBus,
@@ -24,16 +24,16 @@ final class BookSeatsController
     {
         $json = new JsonRequest($request);
         $userId = $json->requiredString('userId');
-        $seats = $json->requiredInt('seats');
+        $spots = $json->requiredInt('spots');
         $json->validate();
 
         $bookingId = $this->ulidGenerator->generate()->value();
 
-        $this->commandBus->dispatch(new BookSeatsCommand(
+        $this->commandBus->dispatch(new ReserveSpotsCommand(
             $bookingId,
             $sessionId,
             $userId,
-            $seats,
+            $spots,
         ));
 
         return $this->responseBuilder->created(

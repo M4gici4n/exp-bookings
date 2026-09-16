@@ -17,7 +17,7 @@ final class Booking extends AggregateRoot
     private BookingId $id;
     private SessionId $sessionId;
     private UserId $userId;
-    private int $seats;
+    private int $spots;
     private Money $totalPrice;
     private BookingStatus $status;
 
@@ -25,7 +25,7 @@ final class Booking extends AggregateRoot
         BookingId $id,
         SessionId $sessionId,
         UserId $userId,
-        int $seats,
+        int $spots,
         Money $totalPrice,
         BookingStatus $status,
     ) {
@@ -34,20 +34,20 @@ final class Booking extends AggregateRoot
         $this->id = $id;
         $this->sessionId = $sessionId;
         $this->userId = $userId;
-        $this->seats = $seats;
+        $this->spots = $spots;
         $this->totalPrice = $totalPrice;
         $this->status = $status;
     }
 
-    public static function confirm(
+    public static function create(
         BookingId $id,
         SessionId $sessionId,
         UserId $userId,
-        int $seats,
+        int $spots,
         Money $totalPrice,
     ): self {
-        $booking = new self($id, $sessionId, $userId, $seats, $totalPrice, BookingStatus::CONFIRMED);
-        $booking->recordEvent(new BookingConfirmed($id, $sessionId, $userId, $seats, $totalPrice));
+        $booking = new self($id, $sessionId, $userId, $spots, $totalPrice, BookingStatus::CONFIRMED);
+        $booking->recordEvent(new BookingConfirmed($id, $sessionId, $userId, $spots, $totalPrice));
 
         return $booking;
     }
@@ -59,7 +59,7 @@ final class Booking extends AggregateRoot
         }
 
         $this->status = BookingStatus::CANCELLED;
-        $this->recordEvent(new BookingCancelled($this->id, $this->sessionId, $this->userId, $this->seats));
+        $this->recordEvent(new BookingCancelled($this->id, $this->sessionId, $this->userId, $this->spots));
     }
 
     public function id(): BookingId
@@ -77,9 +77,9 @@ final class Booking extends AggregateRoot
         return $this->userId;
     }
 
-    public function seats(): int
+    public function spots(): int
     {
-        return $this->seats;
+        return $this->spots;
     }
 
     public function totalPrice(): Money

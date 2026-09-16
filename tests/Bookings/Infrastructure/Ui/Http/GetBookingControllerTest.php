@@ -16,7 +16,7 @@ final class GetBookingControllerTest extends ApiTestCase
     {
         $sessionId = $this->createSession();
 
-        $this->postJson("/sessions/{$sessionId}/bookings", ['userId' => self::USER_ID, 'seats' => 2]);
+        $this->postJson("/sessions/{$sessionId}/bookings", ['userId' => self::USER_ID, 'spots' => 2]);
         $id = $this->json()['data']['id'];
 
         $this->get("/bookings/{$id}");
@@ -26,7 +26,7 @@ final class GetBookingControllerTest extends ApiTestCase
             'id' => $id,
             'sessionId' => $sessionId,
             'userId' => self::USER_ID,
-            'seats' => 2,
+            'spots' => 2,
             'status' => 'confirmed',
             'totalPrice' => ['amount' => 9000, 'currency' => 'EUR'],
         ], $this->json()['data']);

@@ -55,7 +55,7 @@ final class CreateSessionHandlerTest extends TestCase
         $session = $this->sessions->get(SessionId::of(self::SESSION_ID));
         self::assertSame(self::EXPERIENCE_ID, $session->experienceId()->value());
         self::assertSame(10, $session->maxCapacity());
-        self::assertSame(10, $session->availableSeats());
+        self::assertSame(10, $session->availableSpots());
     }
 
     public function testItDispatchesASessionScheduledEvent(): void

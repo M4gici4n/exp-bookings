@@ -13,7 +13,7 @@ final class BookingCancelled extends AbstractDomainEvent
         private readonly BookingId $bookingId,
         private readonly SessionId $sessionId,
         private readonly UserId $userId,
-        private readonly int $seats,
+        private readonly int $spots,
     ) {
         parent::__construct();
     }
@@ -33,8 +33,8 @@ final class BookingCancelled extends AbstractDomainEvent
         return $this->userId;
     }
 
-    public function seats(): int
+    public function spots(): int
     {
-        return $this->seats;
+        return $this->spots;
     }
 }

@@ -18,7 +18,7 @@ final class DoctrineBookingRepositoryTest extends DoctrineTestCase
     private const BOOKING_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
     private const SESSION_ID = '01ARZ3NDEKTSV4RRFFQ69G5FB0';
     private const USER_ID = '01ARZ3NDEKTSV4RRFFQ69G5FC1';
-    private const SEATS = 3;
+    private const SPOTS = 3;
     private const TOTAL_AMOUNT = 7500;
 
     private DoctrineBookingRepository $repository;
@@ -38,7 +38,7 @@ final class DoctrineBookingRepositoryTest extends DoctrineTestCase
         self::assertSame(self::BOOKING_ID, $booking->id()->value());
         self::assertSame(self::SESSION_ID, $booking->sessionId()->value());
         self::assertSame(self::USER_ID, $booking->userId()->value());
-        self::assertSame(self::SEATS, $booking->seats());
+        self::assertSame(self::SPOTS, $booking->spots());
         self::assertSame(BookingStatus::CONFIRMED, $booking->status());
         self::assertTrue($booking->totalPrice()->equals(Money::of(self::TOTAL_AMOUNT, Currency::EUR)));
     }
@@ -69,11 +69,11 @@ final class DoctrineBookingRepositoryTest extends DoctrineTestCase
 
     private function confirmedBooking(): Booking
     {
-        return Booking::confirm(
+        return Booking::create(
             BookingId::of(self::BOOKING_ID),
             SessionId::of(self::SESSION_ID),
             UserId::of(self::USER_ID),
-            self::SEATS,
+            self::SPOTS,
             Money::of(self::TOTAL_AMOUNT, Currency::EUR),
         );
     }

@@ -12,7 +12,7 @@ final readonly class SessionView
         public string $experienceId,
         public string $startsAt,
         public int $maxCapacity,
-        public int $availableSeats,
+        public int $availableSpots,
         public int $priceAmount,
         public string $priceCurrency,
     ) {}
@@ -24,7 +24,7 @@ final readonly class SessionView
             $session->experienceId()->value(),
             $session->startsAt()->format(DateTimeImmutable::ATOM),
             $session->maxCapacity(),
-            $session->availableSeats(),
+            $session->availableSpots(),
             $session->price()->amount(),
             $session->price()->currency()->value,
         );
@@ -38,7 +38,7 @@ final readonly class SessionView
             'experienceId' => $this->experienceId,
             'startsAt' => $this->startsAt,
             'maxCapacity' => $this->maxCapacity,
-            'availableSeats' => $this->availableSeats,
+            'availableSpots' => $this->availableSpots,
             'price' => [
                 'amount' => $this->priceAmount,
                 'currency' => $this->priceCurrency,

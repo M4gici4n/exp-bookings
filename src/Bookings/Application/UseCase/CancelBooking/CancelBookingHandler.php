@@ -31,13 +31,13 @@ final class CancelBookingHandler implements CommandHandlerInterface
         $deadline = $session->startsAt()->sub(new DateInterval(self::CANCELLATION_WINDOW));
 
         if ($this->clock->now() >= $deadline) {
-            throw LateCancellationException::within24HoursOf($session->startsAt());
+            throw LateCancellationException::insideCancellationWindow($session->startsAt());
         }
 
         $booking->cancel();
         $this->bookings->save($booking);
 
-        $session->release($booking->seats());
+        $session->release($booking->spots());
         $this->sessions->save($session);
 
         foreach ($booking->pullEvents() as $event) {

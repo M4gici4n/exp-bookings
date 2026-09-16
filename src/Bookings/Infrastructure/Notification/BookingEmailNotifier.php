@@ -22,7 +22,7 @@ final class BookingEmailNotifier
         $this->mailer->send(new EmailMessage(
             $this->contactEmails->findByUser($event->userId()),
             'Your booking is confirmed',
-            sprintf('Your booking %s for %d seat(s) has been confirmed.', $event->bookingId(), $event->seats()),
+            sprintf('Your booking %s for %d spot(s) has been confirmed.', $event->bookingId(), $event->spots()),
         ));
     }
 
@@ -32,7 +32,7 @@ final class BookingEmailNotifier
         $this->mailer->send(new EmailMessage(
             $this->contactEmails->findByUser($event->userId()),
             'Your booking has been cancelled',
-            sprintf('Your booking %s for %d seat(s) has been cancelled.', $event->bookingId(), $event->seats()),
+            sprintf('Your booking %s for %d spot(s) has been cancelled.', $event->bookingId(), $event->spots()),
         ));
     }
 }

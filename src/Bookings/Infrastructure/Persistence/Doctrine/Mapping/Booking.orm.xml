@@ -17,7 +17,7 @@
 
         <field name="sessionId" column="session_id" type="session_id" />
         <field name="userId" column="user_id" type="user_id" />
-        <field name="seats" column="seats" type="integer" />
+        <field name="spots" column="spots" type="integer" />
         <field name="status" column="status" type="string" length="20" enum-type="App\Bookings\Domain\ValueObject\BookingStatus" />
 
         <embedded name="totalPrice" class="App\Shared\Domain\ValueObject\Money" column-prefix="total_price_" />

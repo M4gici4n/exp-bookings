@@ -19,7 +19,7 @@ final class Version20260729120100 extends AbstractMigration
                 id CHAR(26) NOT NULL,
                 session_id CHAR(26) NOT NULL,
                 user_id CHAR(26) NOT NULL,
-                seats INT NOT NULL,
+                spots INT NOT NULL,
                 status VARCHAR(20) NOT NULL,
                 total_price_amount INT NOT NULL,
                 total_price_currency VARCHAR(3) NOT NULL,

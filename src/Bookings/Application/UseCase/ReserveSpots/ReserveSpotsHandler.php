@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace App\Bookings\Application\UseCase\BookSeats;
+namespace App\Bookings\Application\UseCase\ReserveSpots;
 
-use App\Bookings\Application\UseCase\BookSeats\BookSeatsCommand;
+use App\Bookings\Application\UseCase\ReserveSpots\ReserveSpotsCommand;
 use App\Bookings\Domain\Booking;
 use App\Bookings\Domain\Repository\BookingRepositoryInterface;
 use App\Bookings\Domain\ValueObject\BookingId;
@@ -14,7 +14,7 @@ use App\Shared\Application\Bus\Command\CommandHandlerInterface;
 use App\Shared\Domain\Event\EventDispatcherInterface;
 use App\Shared\Domain\Service\ClockInterface;
 
-final class BookSeatsHandler implements CommandHandlerInterface
+final class ReserveSpotsHandler implements CommandHandlerInterface
 {
     public function __construct(
         private readonly SessionRepositoryInterface $sessions,
@@ -23,7 +23,7 @@ final class BookSeatsHandler implements CommandHandlerInterface
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {}
 
-    public function __invoke(BookSeatsCommand $command): void
+    public function __invoke(ReserveSpotsCommand $command): void
     {
         $session = $this->sessions->getForModification(SessionId::of($command->sessionId));
 
@@ -31,15 +31,15 @@ final class BookSeatsHandler implements CommandHandlerInterface
             throw SessionAlreadyStartedException::withId($session->id());
         }
 
-        $totalPrice = $session->priceFor($command->seats);
+        $totalPrice = $session->totalPriceFor($command->spots);
 
-        $session->reserve($command->seats);
+        $session->reserve($command->spots);
 
-        $booking = Booking::confirm(
+        $booking = Booking::create(
             BookingId::of($command->bookingId),
             $session->id(),
             UserId::of($command->userId),
-            $command->seats,
+            $command->spots,
             $totalPrice,
         );
 

@@ -32,7 +32,7 @@ final class Version20260729120000 extends AbstractMigration
                 experience_id CHAR(26) NOT NULL,
                 starts_at DATETIME NOT NULL,
                 max_capacity INT NOT NULL,
-                available_seats INT NOT NULL,
+                available_spots INT NOT NULL,
                 price_amount INT NOT NULL,
                 price_currency VARCHAR(3) NOT NULL,
                 created_at DATETIME NOT NULL,

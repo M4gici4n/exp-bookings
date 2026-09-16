@@ -9,7 +9,7 @@ final class InvalidSessionCapacityException extends DomainException
 {
     public static function of(int $capacity): self
     {
-        return new self("Session capacity must be at least one seat, got {$capacity}.");
+        return new self("Session capacity must be at least one spot, got {$capacity}.");
     }
 
     public function errorStatus(): ErrorStatus

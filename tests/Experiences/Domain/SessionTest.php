@@ -3,9 +3,9 @@
 namespace App\Tests\Experiences\Domain;
 
 use App\Experiences\Domain\Event\SessionScheduled;
-use App\Experiences\Domain\Exception\InvalidSeatCountException;
+use App\Experiences\Domain\Exception\InvalidSpotCountException;
 use App\Experiences\Domain\Exception\InvalidSessionCapacityException;
-use App\Experiences\Domain\Exception\NotEnoughSeatsException;
+use App\Experiences\Domain\Exception\NotEnoughSpotsException;
 use App\Experiences\Domain\Exception\PastSessionDateException;
 use App\Experiences\Domain\Session;
 use App\Experiences\Domain\ValueObject\ExperienceId;
@@ -33,7 +33,7 @@ final class SessionTest extends TestCase
         self::assertSame(self::EXPERIENCE_ID, $session->experienceId()->value());
         self::assertEquals(new DateTimeImmutable(self::STARTS_AT), $session->startsAt());
         self::assertSame(self::MAX_CAPACITY, $session->maxCapacity());
-        self::assertSame(self::MAX_CAPACITY, $session->availableSeats());
+        self::assertSame(self::MAX_CAPACITY, $session->availableSpots());
         self::assertTrue($session->price()->equals(Money::of(self::PRICE_AMOUNT, Currency::EUR)));
     }
 
@@ -70,44 +70,44 @@ final class SessionTest extends TestCase
         $this->scheduleSession(maxCapacity: 0);
     }
 
-    public function testItReservesSeats(): void
+    public function testItReservesSpots(): void
     {
         $session = $this->scheduleSession();
 
         $session->reserve(3);
 
-        self::assertSame(self::MAX_CAPACITY - 3, $session->availableSeats());
+        self::assertSame(self::MAX_CAPACITY - 3, $session->availableSpots());
     }
 
-    public function testItRejectsReservingMoreSeatsThanAvailable(): void
+    public function testItRejectsReservingMoreSpotsThanAvailable(): void
     {
-        $this->expectException(NotEnoughSeatsException::class);
+        $this->expectException(NotEnoughSpotsException::class);
 
         $this->scheduleSession()->reserve(self::MAX_CAPACITY + 1);
     }
 
-    public function testItRejectsReservingZeroSeats(): void
+    public function testItRejectsReservingZeroSpots(): void
     {
-        $this->expectException(InvalidSeatCountException::class);
+        $this->expectException(InvalidSpotCountException::class);
 
         $this->scheduleSession()->reserve(0);
     }
 
-    public function testItRejectsReservingNegativeSeats(): void
+    public function testItRejectsReservingNegativeSpots(): void
     {
-        $this->expectException(InvalidSeatCountException::class);
+        $this->expectException(InvalidSpotCountException::class);
 
         $this->scheduleSession()->reserve(-5);
     }
 
-    public function testItReleasesSeatsBackToTheSession(): void
+    public function testItReleasesSpotsBackToTheSession(): void
     {
         $session = $this->scheduleSession();
         $session->reserve(4);
 
         $session->release(4);
 
-        self::assertSame(self::MAX_CAPACITY, $session->availableSeats());
+        self::assertSame(self::MAX_CAPACITY, $session->availableSpots());
     }
 
     public function testItRejectsReleasingBeyondCapacity(): void
@@ -117,11 +117,11 @@ final class SessionTest extends TestCase
         $this->scheduleSession()->release(1);
     }
 
-    public function testItComputesTheTotalPriceForSeats(): void
+    public function testItComputesTheTotalPriceForSpots(): void
     {
         $session = $this->scheduleSession();
 
-        $total = $session->priceFor(3);
+        $total = $session->totalPriceFor(3);
 
         self::assertTrue($total->equals(Money::of(self::PRICE_AMOUNT * 3, Currency::EUR)));
     }

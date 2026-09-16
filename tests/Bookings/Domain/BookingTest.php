@@ -19,7 +19,7 @@ final class BookingTest extends TestCase
     private const BOOKING_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
     private const SESSION_ID = '01ARZ3NDEKTSV4RRFFQ69G5FB0';
     private const USER_ID = '01ARZ3NDEKTSV4RRFFQ69G5FC1';
-    private const SEATS = 3;
+    private const SPOTS = 3;
     private const TOTAL_AMOUNT = 7500;
 
     public function testItConfirmsABooking(): void
@@ -29,7 +29,7 @@ final class BookingTest extends TestCase
         self::assertSame(self::BOOKING_ID, $booking->id()->value());
         self::assertSame(self::SESSION_ID, $booking->sessionId()->value());
         self::assertSame(self::USER_ID, $booking->userId()->value());
-        self::assertSame(self::SEATS, $booking->seats());
+        self::assertSame(self::SPOTS, $booking->spots());
         self::assertTrue($booking->totalPrice()->equals(Money::of(self::TOTAL_AMOUNT, Currency::EUR)));
         self::assertSame(BookingStatus::CONFIRMED, $booking->status());
     }
@@ -43,7 +43,7 @@ final class BookingTest extends TestCase
         self::assertCount(1, $events);
         self::assertInstanceOf(BookingConfirmed::class, $events[0]);
         self::assertTrue($events[0]->bookingId()->equals(BookingId::of(self::BOOKING_ID)));
-        self::assertSame(self::SEATS, $events[0]->seats());
+        self::assertSame(self::SPOTS, $events[0]->spots());
     }
 
     public function testItCancelsAConfirmedBooking(): void
@@ -67,7 +67,7 @@ final class BookingTest extends TestCase
         self::assertCount(1, $events);
         self::assertInstanceOf(BookingCancelled::class, $events[0]);
         self::assertTrue($events[0]->sessionId()->equals(SessionId::of(self::SESSION_ID)));
-        self::assertSame(self::SEATS, $events[0]->seats());
+        self::assertSame(self::SPOTS, $events[0]->spots());
     }
 
     public function testItRejectsCancellingAnAlreadyCancelledBooking(): void
@@ -82,11 +82,11 @@ final class BookingTest extends TestCase
 
     private function confirmBooking(): Booking
     {
-        return Booking::confirm(
+        return Booking::create(
             BookingId::of(self::BOOKING_ID),
             SessionId::of(self::SESSION_ID),
             UserId::of(self::USER_ID),
-            self::SEATS,
+            self::SPOTS,
             Money::of(self::TOTAL_AMOUNT, Currency::EUR),
         );
     }

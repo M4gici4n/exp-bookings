@@ -32,7 +32,7 @@ final class GetSessionControllerTest extends ApiTestCase
             'experienceId' => $experienceId,
             'startsAt' => $startsAt,
             'maxCapacity' => 20,
-            'availableSeats' => 20,
+            'availableSpots' => 20,
             'price' => ['amount' => 4500, 'currency' => 'EUR'],
         ], $this->json()['data']);
     }

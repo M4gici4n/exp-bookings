@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace App\Tests\Bookings\Application\UseCase\BookSeats;
+namespace App\Tests\Bookings\Application\UseCase\ReserveSpots;
 
-use App\Bookings\Application\UseCase\BookSeats\BookSeatsCommand;
-use App\Bookings\Application\UseCase\BookSeats\BookSeatsHandler;
+use App\Bookings\Application\UseCase\ReserveSpots\ReserveSpotsCommand;
+use App\Bookings\Application\UseCase\ReserveSpots\ReserveSpotsHandler;
 use App\Bookings\Domain\Event\BookingConfirmed;
 use App\Bookings\Domain\ValueObject\BookingId;
 use App\Bookings\Domain\ValueObject\BookingStatus;
-use App\Experiences\Domain\Exception\InvalidSeatCountException;
-use App\Experiences\Domain\Exception\NotEnoughSeatsException;
+use App\Experiences\Domain\Exception\InvalidSpotCountException;
+use App\Experiences\Domain\Exception\NotEnoughSpotsException;
 use App\Experiences\Domain\Exception\SessionAlreadyStartedException;
 use App\Experiences\Domain\Exception\SessionNotFoundException;
 use App\Experiences\Domain\Session;
@@ -23,7 +23,7 @@ use App\Tests\Shared\Infrastructure\Service\FixedClock;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 
-final class BookSeatsHandlerTest extends TestCase
+final class ReserveSpotsHandlerTest extends TestCase
 {
     private const BOOKING_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
     private const SESSION_ID = '01ARZ3NDEKTSV4RRFFQ69G5FB0';
@@ -45,27 +45,27 @@ final class BookSeatsHandlerTest extends TestCase
         $this->eventDispatcher = new InMemoryEventDispatcher();
     }
 
-    public function testItBooksSeats(): void
+    public function testItBooksSpots(): void
     {
         $this->givenScheduledSession();
 
-        ($this->handlerAt(self::NOW))($this->command(seats: 3));
+        ($this->handlerAt(self::NOW))($this->command(spots: 3));
 
         $booking = $this->bookings->get(BookingId::of(self::BOOKING_ID));
         self::assertSame(self::SESSION_ID, $booking->sessionId()->value());
         self::assertSame(self::USER_ID, $booking->userId()->value());
-        self::assertSame(3, $booking->seats());
+        self::assertSame(3, $booking->spots());
         self::assertSame(BookingStatus::CONFIRMED, $booking->status());
         self::assertTrue($booking->totalPrice()->equals(Money::of(7500, Currency::EUR)));
 
-        self::assertSame(self::CAPACITY - 3, $this->sessions->get(SessionId::of(self::SESSION_ID))->availableSeats());
+        self::assertSame(self::CAPACITY - 3, $this->sessions->get(SessionId::of(self::SESSION_ID))->availableSpots());
     }
 
     public function testItDispatchesABookingConfirmedEvent(): void
     {
         $this->givenScheduledSession();
 
-        ($this->handlerAt(self::NOW))($this->command(seats: 3));
+        ($this->handlerAt(self::NOW))($this->command(spots: 3));
 
         $events = $this->eventDispatcher->dispatchedEvents();
         self::assertCount(1, $events);
@@ -88,31 +88,31 @@ final class BookSeatsHandlerTest extends TestCase
         ($this->handlerAt(self::STARTS_AT))($this->command());
     }
 
-    public function testItRejectsWhenThereAreNotEnoughSeats(): void
+    public function testItRejectsWhenThereAreNotEnoughSpots(): void
     {
         $this->givenScheduledSession();
 
-        $this->expectException(NotEnoughSeatsException::class);
+        $this->expectException(NotEnoughSpotsException::class);
 
-        ($this->handlerAt(self::NOW))($this->command(seats: self::CAPACITY + 1));
+        ($this->handlerAt(self::NOW))($this->command(spots: self::CAPACITY + 1));
     }
 
-    public function testItRejectsBookingZeroSeats(): void
+    public function testItRejectsBookingZeroSpots(): void
     {
         $this->givenScheduledSession();
 
-        $this->expectException(InvalidSeatCountException::class);
+        $this->expectException(InvalidSpotCountException::class);
 
-        ($this->handlerAt(self::NOW))($this->command(seats: 0));
+        ($this->handlerAt(self::NOW))($this->command(spots: 0));
     }
 
-    public function testItRejectsBookingNegativeSeats(): void
+    public function testItRejectsBookingNegativeSpots(): void
     {
         $this->givenScheduledSession();
 
-        $this->expectException(InvalidSeatCountException::class);
+        $this->expectException(InvalidSpotCountException::class);
 
-        ($this->handlerAt(self::NOW))($this->command(seats: -5));
+        ($this->handlerAt(self::NOW))($this->command(spots: -5));
     }
 
     private function givenScheduledSession(): void
@@ -127,9 +127,9 @@ final class BookSeatsHandlerTest extends TestCase
         ));
     }
 
-    private function handlerAt(string $now): BookSeatsHandler
+    private function handlerAt(string $now): ReserveSpotsHandler
     {
-        return new BookSeatsHandler(
+        return new ReserveSpotsHandler(
             $this->sessions,
             $this->bookings,
             new FixedClock(new DateTimeImmutable($now)),
@@ -137,8 +137,8 @@ final class BookSeatsHandlerTest extends TestCase
         );
     }
 
-    private function command(int $seats = 2): BookSeatsCommand
+    private function command(int $spots = 2): ReserveSpotsCommand
     {
-        return new BookSeatsCommand(self::BOOKING_ID, self::SESSION_ID, self::USER_ID, $seats);
+        return new ReserveSpotsCommand(self::BOOKING_ID, self::SESSION_ID, self::USER_ID, $spots);
     }
 }

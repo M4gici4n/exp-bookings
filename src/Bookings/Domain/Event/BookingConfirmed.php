@@ -14,7 +14,7 @@ final class BookingConfirmed extends AbstractDomainEvent
         private readonly BookingId $bookingId,
         private readonly SessionId $sessionId,
         private readonly UserId $userId,
-        private readonly int $seats,
+        private readonly int $spots,
         private readonly Money $totalPrice,
     ) {
         parent::__construct();
@@ -35,9 +35,9 @@ final class BookingConfirmed extends AbstractDomainEvent
         return $this->userId;
     }
 
-    public function seats(): int
+    public function spots(): int
     {
-        return $this->seats;
+        return $this->spots;
     }
 
     public function totalPrice(): Money
