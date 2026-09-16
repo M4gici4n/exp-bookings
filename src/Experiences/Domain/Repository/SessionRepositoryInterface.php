@@ -13,12 +13,10 @@ interface SessionRepositoryInterface
 
     public function get(SessionId $id): Session;
 
+    public function getForModification(SessionId $id): Session;
+
     /** @return Session[] */
     public function allByExperience(ExperienceId $experienceId): array;
 
     public function existsForExperienceOnDay(ExperienceId $experienceId, DateTimeImmutable $day): bool;
-
-    public function reserveSeats(SessionId $id, int $seats): void;
-
-    public function releaseSeats(SessionId $id, int $seats): void;
 }

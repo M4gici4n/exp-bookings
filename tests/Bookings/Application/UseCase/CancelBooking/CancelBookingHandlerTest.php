@@ -109,7 +109,7 @@ final class CancelBookingHandlerTest extends TestCase
             new DateTimeImmutable(self::SCHEDULED_AT),
         ));
 
-        $this->sessions->reserveSeats(SessionId::of(self::SESSION_ID), self::SEATS);
+        $this->sessions->get(SessionId::of(self::SESSION_ID))->reserve(self::SEATS);
     }
 
     private function givenConfirmedBooking(bool $cancelled = false): void

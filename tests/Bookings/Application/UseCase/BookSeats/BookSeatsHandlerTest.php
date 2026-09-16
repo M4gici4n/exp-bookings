@@ -7,6 +7,7 @@ use App\Bookings\Application\UseCase\BookSeats\BookSeatsHandler;
 use App\Bookings\Domain\Event\BookingConfirmed;
 use App\Bookings\Domain\ValueObject\BookingId;
 use App\Bookings\Domain\ValueObject\BookingStatus;
+use App\Experiences\Domain\Exception\InvalidSeatCountException;
 use App\Experiences\Domain\Exception\NotEnoughSeatsException;
 use App\Experiences\Domain\Exception\SessionAlreadyStartedException;
 use App\Experiences\Domain\Exception\SessionNotFoundException;
@@ -94,6 +95,24 @@ final class BookSeatsHandlerTest extends TestCase
         $this->expectException(NotEnoughSeatsException::class);
 
         ($this->handlerAt(self::NOW))($this->command(seats: self::CAPACITY + 1));
+    }
+
+    public function testItRejectsBookingZeroSeats(): void
+    {
+        $this->givenScheduledSession();
+
+        $this->expectException(InvalidSeatCountException::class);
+
+        ($this->handlerAt(self::NOW))($this->command(seats: 0));
+    }
+
+    public function testItRejectsBookingNegativeSeats(): void
+    {
+        $this->givenScheduledSession();
+
+        $this->expectException(InvalidSeatCountException::class);
+
+        ($this->handlerAt(self::NOW))($this->command(seats: -5));
     }
 
     private function givenScheduledSession(): void

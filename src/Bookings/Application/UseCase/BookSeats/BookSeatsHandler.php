@@ -25,7 +25,7 @@ final class BookSeatsHandler implements CommandHandlerInterface
 
     public function __invoke(BookSeatsCommand $command): void
     {
-        $session = $this->sessions->get(SessionId::of($command->sessionId));
+        $session = $this->sessions->getForModification(SessionId::of($command->sessionId));
 
         if ($session->hasStarted($this->clock->now())) {
             throw SessionAlreadyStartedException::withId($session->id());
@@ -33,7 +33,7 @@ final class BookSeatsHandler implements CommandHandlerInterface
 
         $totalPrice = $session->priceFor($command->seats);
 
-        $this->sessions->reserveSeats($session->id(), $command->seats);
+        $session->reserve($command->seats);
 
         $booking = Booking::confirm(
             BookingId::of($command->bookingId),

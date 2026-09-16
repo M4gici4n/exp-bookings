@@ -7,6 +7,7 @@ use App\Bookings\Domain\Exception\BookingNotFoundException;
 use App\Bookings\Domain\Repository\BookingRepositoryInterface;
 use App\Bookings\Domain\ValueObject\BookingId;
 use App\Experiences\Domain\ValueObject\SessionId;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class DoctrineBookingRepository implements BookingRepositoryInterface
@@ -23,6 +24,12 @@ final class DoctrineBookingRepository implements BookingRepositoryInterface
     public function get(BookingId $id): Booking
     {
         return $this->entityManager->find(Booking::class, $id)
+            ?? throw BookingNotFoundException::withId($id);
+    }
+
+    public function getForModification(BookingId $id): Booking
+    {
+        return $this->entityManager->find(Booking::class, $id, LockMode::PESSIMISTIC_WRITE)
             ?? throw BookingNotFoundException::withId($id);
     }
 

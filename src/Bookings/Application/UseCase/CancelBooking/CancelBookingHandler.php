@@ -25,8 +25,8 @@ final class CancelBookingHandler implements CommandHandlerInterface
 
     public function __invoke(CancelBookingCommand $command): void
     {
-        $booking = $this->bookings->get(BookingId::of($command->bookingId));
-        $session = $this->sessions->get($booking->sessionId());
+        $booking = $this->bookings->getForModification(BookingId::of($command->bookingId));
+        $session = $this->sessions->getForModification($booking->sessionId());
 
         $deadline = $session->startsAt()->sub(new DateInterval(self::CANCELLATION_WINDOW));
 
@@ -35,9 +35,10 @@ final class CancelBookingHandler implements CommandHandlerInterface
         }
 
         $booking->cancel();
-
         $this->bookings->save($booking);
-        $this->sessions->releaseSeats($booking->sessionId(), $booking->seats());
+
+        $session->release($booking->seats());
+        $this->sessions->save($session);
 
         foreach ($booking->pullEvents() as $event) {
             $this->eventDispatcher->dispatch($event);

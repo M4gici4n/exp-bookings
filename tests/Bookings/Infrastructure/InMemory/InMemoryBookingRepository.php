@@ -23,6 +23,11 @@ final class InMemoryBookingRepository implements BookingRepositoryInterface
         return $this->bookings[$id->value()] ?? throw BookingNotFoundException::withId($id);
     }
 
+    public function getForModification(BookingId $id): Booking
+    {
+        return $this->get($id);
+    }
+
     public function allBySession(SessionId $sessionId): array
     {
         $matches = [];

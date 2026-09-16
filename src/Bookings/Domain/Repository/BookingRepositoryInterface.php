@@ -12,6 +12,8 @@ interface BookingRepositoryInterface
 
     public function get(BookingId $id): Booking;
 
+    public function getForModification(BookingId $id): Booking;
+
     /** @return Booking[] */
     public function allBySession(SessionId $sessionId): array;
 }

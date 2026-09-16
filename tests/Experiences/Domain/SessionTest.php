@@ -3,6 +3,7 @@
 namespace App\Tests\Experiences\Domain;
 
 use App\Experiences\Domain\Event\SessionScheduled;
+use App\Experiences\Domain\Exception\InvalidSeatCountException;
 use App\Experiences\Domain\Exception\InvalidSessionCapacityException;
 use App\Experiences\Domain\Exception\NotEnoughSeatsException;
 use App\Experiences\Domain\Exception\PastSessionDateException;
@@ -83,6 +84,20 @@ final class SessionTest extends TestCase
         $this->expectException(NotEnoughSeatsException::class);
 
         $this->scheduleSession()->reserve(self::MAX_CAPACITY + 1);
+    }
+
+    public function testItRejectsReservingZeroSeats(): void
+    {
+        $this->expectException(InvalidSeatCountException::class);
+
+        $this->scheduleSession()->reserve(0);
+    }
+
+    public function testItRejectsReservingNegativeSeats(): void
+    {
+        $this->expectException(InvalidSeatCountException::class);
+
+        $this->scheduleSession()->reserve(-5);
     }
 
     public function testItReleasesSeatsBackToTheSession(): void

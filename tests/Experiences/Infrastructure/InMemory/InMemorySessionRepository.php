@@ -24,6 +24,11 @@ final class InMemorySessionRepository implements SessionRepositoryInterface
         return $this->sessions[$id->value()] ?? throw SessionNotFoundException::withId($id);
     }
 
+    public function getForModification(SessionId $id): Session
+    {
+        return $this->get($id);
+    }
+
     public function allByExperience(ExperienceId $experienceId): array
     {
         $matches = [];
@@ -48,15 +53,5 @@ final class InMemorySessionRepository implements SessionRepositoryInterface
         }
 
         return false;
-    }
-
-    public function reserveSeats(SessionId $id, int $seats): void
-    {
-        $this->get($id)->reserve($seats);
-    }
-
-    public function releaseSeats(SessionId $id, int $seats): void
-    {
-        $this->get($id)->release($seats);
     }
 }

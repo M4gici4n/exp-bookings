@@ -46,48 +46,64 @@ final class DoctrineSessionRepositoryTest extends DoctrineTestCase
         );
     }
 
-    public function testItReservesSeatsAtomicallyWithoutOverselling(): void
+    public function testItRetrievesASessionForModification(): void
+    {
+        $this->persist($this->session(capacity: 8));
+        $this->entityManager->clear();
+
+        $session = $this->repository->getForModification(SessionId::of(self::SESSION_ID));
+
+        self::assertSame(self::SESSION_ID, $session->id()->value());
+        self::assertSame(8, $session->availableSeats());
+    }
+
+    public function testItReservesSeatsThroughTheAggregate(): void
+    {
+        $this->persist($this->session(capacity: 3));
+        $this->entityManager->clear();
+
+        $id = SessionId::of(self::SESSION_ID);
+        $session = $this->repository->getForModification($id);
+        $session->reserve(2);
+        $this->entityManager->flush();
+
+        self::assertSame(1, $this->freshAvailableSeats($id));
+    }
+
+    public function testItRejectsReservingMoreSeatsThanAvailableWithoutTouchingTheCount(): void
     {
         $this->persist($this->session(capacity: 3));
         $this->entityManager->clear();
 
         $id = SessionId::of(self::SESSION_ID);
 
-        $this->repository->reserveSeats($id, 2);
-        self::assertSame(1, $this->freshAvailableSeats($id));
-
-        // Only one seat remains: reserving two must fail and leave the count untouched.
         try {
-            $this->repository->reserveSeats($id, 2);
+            $this->repository->getForModification($id)->reserve(4);
             self::fail('Expected NotEnoughSeatsException.');
         } catch (NotEnoughSeatsException) {
-            self::assertSame(1, $this->freshAvailableSeats($id));
+            self::assertSame(3, $this->freshAvailableSeats($id));
         }
-
-        $this->repository->reserveSeats($id, 1);
-        self::assertSame(0, $this->freshAvailableSeats($id));
-
-        $this->expectException(NotEnoughSeatsException::class);
-        $this->repository->reserveSeats($id, 1);
     }
 
-    public function testItReleasesSeats(): void
+    public function testItReleasesSeatsThroughTheAggregate(): void
     {
         $this->persist($this->session(capacity: 5));
         $this->entityManager->clear();
 
         $id = SessionId::of(self::SESSION_ID);
-        $this->repository->reserveSeats($id, 4);
-        $this->repository->releaseSeats($id, 3);
+        $session = $this->repository->getForModification($id);
+        $session->reserve(4);
+        $session->release(3);
+        $this->entityManager->flush();
 
         self::assertSame(4, $this->freshAvailableSeats($id));
     }
 
-    public function testReserveSeatsThrowsWhenSessionDoesNotExist(): void
+    public function testGetForModificationThrowsWhenSessionDoesNotExist(): void
     {
         $this->expectException(SessionNotFoundException::class);
 
-        $this->repository->reserveSeats(SessionId::of(self::SESSION_ID), 1);
+        $this->repository->getForModification(SessionId::of(self::SESSION_ID));
     }
 
     private function persist(Session $session): void
