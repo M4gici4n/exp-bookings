@@ -33,15 +33,15 @@ Entities are identified with ULIDs rather than UUIDs. A ULID is shorter to store
 
 ### Money and amounts
 
-Prices and totals are wrapped in a `Money` value object rather than kept as plain numbers. The brief did not ask for more than one currency, but modelling money explicitly leaves the door open to supporting different currencies later without touching the callers. Amounts are held as integers in the currency's minor units (for example cents) instead of floats, to avoid the rounding errors that floating-point arithmetic introduces in monetary calculations.
+Prices and totals are wrapped in a `Money` value object rather than kept as plain numbers. The platform deals with a single currency for now, but modelling money explicitly leaves the door open to supporting different currencies later without touching the callers. Amounts are held as integers in the currency's minor units (for example cents) instead of floats, to avoid the rounding errors that floating-point arithmetic introduces in monetary calculations.
 
 ### Concurrency when booking spots
 
-Popular sessions can sell out in minutes with many people booking at the same time, so the booking path is designed to be safe under concurrency. The availability rule lives in the `Session` aggregate (`reserve` decrements the available spots only when enough are left, `release` gives them back), and the write path acquires a pessimistic write lock on the session row (`SELECT ... FOR UPDATE`, exposed as `getForUpdate` on the repository port) before touching it. Because the lock is held until the surrounding transaction commits, concurrent bookings for the same session are serialised: the second request waits for the first to finish, then reads the already updated available count and is rejected if there are not enough spots left. Booking and cancelling therefore go through the same rule and the same aggregate, and overselling is impossible no matter how many requests arrive at once. The lock is only taken on the write path; read operations use the plain `get` and never block.
+Popular sessions can sell out in minutes with many people booking at the same time, so the booking path is designed to be safe under concurrency. The availability rule lives in the `Session` aggregate (`reserve` decrements the available spots only when enough are left, `release` gives them back), and the write path acquires a pessimistic write lock on the session row (`SELECT ... FOR UPDATE`, exposed as `getForModification` on the repository port) before touching it. Because the lock is held until the surrounding transaction commits, concurrent bookings for the same session are serialised: the second request waits for the first to finish, then reads the already updated available count and is rejected if there are not enough spots left. Booking and cancelling therefore go through the same rule and the same aggregate, and overselling is impossible no matter how many requests arrive at once. The lock is only taken on the write path; read operations use the plain `get` and never block.
 
 ### Notifications
 
-The brief only requires the approach to sending mail, not a real delivery, so notifications are faked: when a booking is confirmed or cancelled a domain event is raised and a listener composes the message, but the mailer adapter writes a log entry to disk instead of contacting a real mail service. The recipient address is deliberately not logged.
+Sending mail is only approached, not really delivered, so notifications are faked: when a booking is confirmed or cancelled a domain event is raised and a listener composes the message, but the mailer adapter writes a log entry to disk instead of contacting a real mail service. The recipient address is deliberately not logged.
 
 Domain events are dispatched synchronously within the same request. In a production system these events should be published through an outbox: the event would be written to the database in the same transaction as the state change and relayed to the message broker afterwards by a separate process, guaranteeing that the state change and the event are never out of sync. That has been left out here on purpose, given the time available and the scope of the exercise, in favour of the simpler synchronous dispatch.
 
@@ -80,9 +80,9 @@ responds with `201 Created`, a `Location: /experiences/{id}` header and:
 
     { "data": { "id": "01J9Z3K7P2QW8V6M4T0XR5E9AB" } }
 
-Since providers and users are not modelled, the `providerId` in the create-experience request and the `userId` in the book-spots request are arbitrary ULIDs supplied by the caller, as the brief allows.
+Since providers and users are not modelled, the `providerId` in the create-experience request and the `userId` in the book-spots request are arbitrary ULIDs supplied by the caller.
 
-The domain rules enforced by the API are the ones described in the brief: a session cannot be created on a date that already has another session for the same experience, nor in the past. A booking cannot be made for a session that has already started. A booking can only be cancelled up to twenty-four hours before the session starts. A cancelled booking cannot be cancelled again. And cancelling a confirmed booking returns its spots to the session.
+The domain rules enforced by the API are: a session cannot be created on a date that already has another session for the same experience, nor in the past. A booking cannot be made for a session that has already started. A booking can only be cancelled up to twenty-four hours before the session starts. A cancelled booking cannot be cancelled again. And cancelling a confirmed booking returns its spots to the session.
 
 ## Testing
 
